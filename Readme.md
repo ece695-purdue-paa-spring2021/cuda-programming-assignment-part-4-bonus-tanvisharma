@@ -22,6 +22,11 @@ measure the full AlexNet execution time at different batch sizes and report.
 Completing this will give you serious street credit, you can now claim you
 implemented AlexNet from scratch using CUDA :)
 
+# Discussion
+
+There are 3 kernel functions, for convolutional layer, maxpool layer and fully connected layer, with names convLayer_gpu, poolLayer_gpu and gemmLayer_gpu respectively. All the kernel implementations include using shared memory for optimizing the kernel execution and use unmanaged memory (using cudamalloc and cudamemcpy). The results show that the API call cudaMemcpy covers a significant part of the execution time, other than the convolutional kernel. Fully connected and maxpool occupy negligible time compared to others, also because they are called less number of times and not compute-intensive. Note that in general the execution time increases with batch size. For the batch size of 2, there is a slight decrease, possibly due to more data reuse resulting in lower data movements and latency. 
+
+
 # References
 
 <a id="1">[1]</a>
