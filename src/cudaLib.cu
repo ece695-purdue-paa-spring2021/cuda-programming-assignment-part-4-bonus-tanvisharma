@@ -25,11 +25,13 @@ int runAlexNet (int argc, char ** argv) {
 	oShape.channels	= (fShape.count);
 	oShape.count 	= (iShape.count); // batch size
 
+	#ifndef DEBUG_PRINT_DISABLE
 	std::cout << "Evaluate AlexNet-Layer1 : \n";
 	std::cout << "Input : " << iShape << " \n";
 	std::cout << "Filter : " << fShape << " \n";
 	std::cout << "Output : " << oShape << " \n";
 	std::cout << "ConvArgs : " << convArgs << " \n";
+	#endif
 	
 	// Initialize the inputs
 	float * in1 = nullptr;
@@ -43,26 +45,20 @@ int runAlexNet (int argc, char ** argv) {
 	returnVal = makeTensorBin(&filter1, fShape);
 	returnVal = makeVector(&bias1, oShape.channels);
 	out1 = (float *) malloc (tensorSize(oShape) * sizeof(float));
-	// for debugging
-	// for (int i = 0; i < oShape.channels; ++i){
-	// 	bias1[i] = 0.5;
-	// }
 
 	// Run the required operation
 	evaluateGpuConvLayer(in1, iShape, filter1, fShape, bias1, out1, oShape, convArgs);
-	printTensor(out1, oShape);
+	// printTensor(out1, oShape);
 
 	// Pass the output to MaxPool
 	PoolLayerArgs poolArgs = Alex_PoolArgs;
-	std::cout << "MaxPool Args : "<< poolArgs << "\n";
 	float * out1pool;
 	TensorShape oShapePool = {oShape.count, oShape.channels, (oShape.height - poolArgs.poolH)/poolArgs.strideH +1, (oShape.width - poolArgs.poolW)/poolArgs.strideW +1};
 	out1pool = (float *) malloc(tensorSize(oShapePool) * sizeof(float));
 
 	evaluateGpuPoolLayer(out1, oShape, out1pool, oShapePool, poolArgs);
 
-	std::cout << oShapePool << "\n";
-	printTensor(out1pool, oShapePool);
+	// printTensor(out1pool, oShapePool);
 
 	free(filter1); free(bias1);
 
@@ -76,11 +72,13 @@ int runAlexNet (int argc, char ** argv) {
 	oShape2.channels	= (fShape2.count);
 	oShape2.count 	= (oShapePool.count); // batch size
 
+	#ifndef DEBUG_PRINT_DISABLE
 	std::cout << "Evaluate AlexNet-Layer2 : \n";
 	std::cout << "Input : " << oShapePool << " \n";
 	std::cout << "Filter : " << fShape2 << " \n";
 	std::cout << "Output : " << oShape2 << " \n";
 	std::cout << "ConvArgs : " << convArgs2 << " \n";
+	#endif
 	
 	// Initialize the inputs
 	float * filter2 = nullptr;
@@ -94,18 +92,16 @@ int runAlexNet (int argc, char ** argv) {
 
 	// Run the required operation
 	evaluateGpuConvLayer(out1pool, oShapePool, filter2, fShape2, bias2, out2, oShape2, convArgs2);
-	printTensor(out2, oShape2);
+	// printTensor(out2, oShape2);
 
 	// Pass the output to MaxPool
-	std::cout << "MaxPool Args : "<< poolArgs << "\n";
 	float * out2pool;
 	TensorShape oShapePool2 = {oShape2.count, oShape2.channels, (oShape2.height - poolArgs.poolH)/poolArgs.strideH +1, (oShape2.width - poolArgs.poolW)/poolArgs.strideW +1};
 	out2pool = (float *) malloc(tensorSize(oShapePool2) * sizeof(float));
 
 	evaluateGpuPoolLayer(out2, oShape2, out2pool, oShapePool2, poolArgs);
 
-	std::cout << oShapePool2 << "\n";
-	printTensor(out2pool, oShapePool2);
+	// printTensor(out2pool, oShapePool2);
 	free(filter2); free(bias2);
 
 	// ---------- Layer3 ------------
@@ -118,11 +114,13 @@ int runAlexNet (int argc, char ** argv) {
 	oShape3.channels	= (fShape3.count);
 	oShape3.count 	= (oShapePool2.count); // batch size
 
+	#ifndef DEBUG_PRINT_DISABLE
 	std::cout << "Evaluate AlexNet-Layer3 : \n";
 	std::cout << "Input : " << oShapePool << " \n";
 	std::cout << "Filter : " << fShape3 << " \n";
 	std::cout << "Output : " << oShape3 << " \n";
 	std::cout << "ConvArgs : " << convArgs3 << " \n";
+	#endif
 	
 	// Initialize the inputs
 	float * filter3 = nullptr;
@@ -136,7 +134,7 @@ int runAlexNet (int argc, char ** argv) {
 
 	// Run the required operation
 	evaluateGpuConvLayer(out2pool, oShapePool2, filter3, fShape3, bias3, out3, oShape3, convArgs3);
-	printTensor(out3, oShape3);
+	// printTensor(out3, oShape3);
 
 	// ---------- Layer4 ------------
 	TensorShape fShape4 = AlexL4_FilterShape;
@@ -148,11 +146,13 @@ int runAlexNet (int argc, char ** argv) {
 	oShape4.channels	= (fShape4.count);
 	oShape4.count 	= (oShape3.count); // batch size
 
+	#ifndef DEBUG_PRINT_DISABLE
 	std::cout << "Evaluate AlexNet-Layer4 : \n";
 	std::cout << "Filter : " << fShape4 << " \n";
 	std::cout << "Output : " << oShape4 << " \n";
 	std::cout << "ConvArgs : " << convArgs4 << " \n";
-	
+	#endif
+
 	// Initialize the inputs
 	float * filter4 = nullptr;
 	float * bias4 = nullptr; 
@@ -165,7 +165,7 @@ int runAlexNet (int argc, char ** argv) {
 
 	// Run the required operation
 	evaluateGpuConvLayer(out3, oShape3, filter4, fShape4, bias4, out4, oShape4, convArgs4);
-	printTensor(out4, oShape4);
+	// printTensor(out4, oShape4);
 
 	// ---------- Layer5 ------------
 	TensorShape fShape5 = AlexL5_FilterShape;
@@ -177,11 +177,13 @@ int runAlexNet (int argc, char ** argv) {
 	oShape5.channels	= (fShape5.count);
 	oShape5.count 	= (oShape4.count); // batch size
 
+	#ifndef DEBUG_PRINT_DISABLE
 	std::cout << "Evaluate AlexNet-Layer5 : \n";
 	std::cout << "Filter : " << fShape5 << " \n";
 	std::cout << "Output : " << oShape5 << " \n";
 	std::cout << "ConvArgs : " << convArgs5 << " \n";
-	
+	#endif
+
 	// Initialize the inputs
 	float * filter5 = nullptr;
 	float * bias5 = nullptr; 
@@ -194,27 +196,19 @@ int runAlexNet (int argc, char ** argv) {
 
 	// Run the required operation
 	evaluateGpuConvLayer(out4, oShape4, filter5, fShape5, bias5, out5, oShape5, convArgs5);
-	printTensor(out5, oShape5);
-
-	// TensorShape oShape5 = {1, 256, 13, 13};
-	// float * out5 = nullptr;
-
-	// int returnVal;
-	// returnVal = makeTensor(&out5, oShape5);
-	// // // assert(returnVal == 0);  //can be used for debugging
-
-	// PoolLayerArgs poolArgs = Alex_PoolArgs;
+	// printTensor(out5, oShape5);
 
 	// Pass the output to MaxPool
+	#ifndef DEBUG_PRINT_DISABLE
 	std::cout << "MaxPool Args : "<< poolArgs << "\n";
+	#endif
 	float * out5pool;
 	TensorShape oShapePool5 = {oShape5.count, oShape5.channels, (oShape5.height - poolArgs.poolH)/poolArgs.strideH +1, (oShape5.width - poolArgs.poolW)/poolArgs.strideW +1};
 	out5pool = (float *) malloc(tensorSize(oShapePool5) * sizeof(float));
 
 	evaluateGpuPoolLayer(out5, oShape5, out5pool, oShapePool5, poolArgs);
 
-	std::cout << oShapePool5 << "\n";
-	printTensor(out5pool, oShapePool5);
+	// printTensor(out5pool, oShapePool5);
 	free(filter5); free(bias5);
 
 	// ---------- Layer6 ------------
@@ -223,10 +217,12 @@ int runAlexNet (int argc, char ** argv) {
 	GemmLayerArgs FCargs = {16, 16, 1};
 	TensorShape oShape6   = {1, 1, oShapePool5.count, 4096};
 	
+	#ifndef DEBUG_PRINT_DISABLE
 	std::cout << "Evaluate AlexNet-Layer6 : \n";
 	std::cout << "Filter : " << fShapeFC1 << " \n";
 	std::cout << "Output : " << oShape6 << " \n";
-	
+	#endif
+
 	// Initialize the inputs
 	float * filter6 = nullptr;
 	float * out6 = nullptr;
@@ -235,17 +231,19 @@ int runAlexNet (int argc, char ** argv) {
 	out6 = (float *) malloc(tensorSize(oShape6) * sizeof(float));
 	
 	evaluateGpuFCLayer(out5pool, inShapeFC1, filter6, fShapeFC1, out6, oShape6, FCargs);
-	printTensor(out6, oShape6);
+	// printTensor(out6, oShape6);
 
 	// ---------- Layer7 ------------
 	TensorShape inShapeFC2 = oShape6;
 	TensorShape fShapeFC2 = {1, 1, 4096, 1000};
 	TensorShape oShape7   = {1, 1, oShape6.height, 1000};
-	
+
+	#ifndef DEBUG_PRINT_DISABLE
 	std::cout << "Evaluate AlexNet-Layer7 : \n";
 	std::cout << "Filter : " << fShapeFC2 << " \n";
 	std::cout << "Output : " << oShape7 << " \n";
-	
+	#endif
+
 	// Initialize the inputs
 	float * filter7 = nullptr;
 	float * out7 = nullptr;
@@ -254,7 +252,7 @@ int runAlexNet (int argc, char ** argv) {
 	out7 = (float *) malloc(tensorSize(oShape7) * sizeof(float));
 	
 	evaluateGpuFCLayer(out6, inShapeFC2, filter7, fShapeFC2, out7, oShape7, FCargs);
-	printTensor(out7, oShape7);
+	// printTensor(out7, oShape7);
 
 	return 0;
 }
@@ -467,9 +465,6 @@ void convLayer_gpu (int chanTile, float * input, TensorShape iShape,
 	
 	for (int chan = 0; chan < subChannels; ++chan ){ // #inpChan per subChannel
 		int inpChanOffset = inpChan*chan; //channel-offset for actual input
-		// if (tx == 1 && ty == 7 && bx ==0 && by == 0 && tz == 0 && bz ==0){
-		// 	printf("inpChanOffset:%d\n", inpChanOffset);
-		// }
 
 		//Load weight to shared memory
 		//Reuse across output batch and within an output channel
@@ -487,10 +482,6 @@ void convLayer_gpu (int chanTile, float * input, TensorShape iShape,
 							filter_data[fshared_row*fShape.width + fshared_col + fshared_chan*fShape.width*fShape.height + fshared_count*fShape.width*fShape.height*inpChan]   = filter[fshared_row*fShape.width + fshared_col + fil_chan*fShape.width*fShape.height + fil_count*fShape.width*fShape.height*fShape.channels];
 					}
 				}
-				// if (tx == 1 && ty == 7 && bx ==0 && by == 9 && tz == 0 && bz ==0){
-				// 	printf("Chan[%d] | filter_data: %f, FilCount: %d, filChan:%d, filH: %d, filW: %d\n", chan, filter_data[fshared_row*fShape.width + fshared_col + fshared_chan*fShape.width*fShape.height + fshared_count*fShape.width*fShape.height*inpChan], fil_count, fil_chan, fshared_row, fshared_col);
-				// 	printf("Chan[%d] | SharedCount: %d, shared_chan:%d, shared_row: %d, shared_col: %d\n", chan, fshared_count, fshared_chan, fshared_row, fshared_col);
-				// }
 			}
 		}
 
@@ -518,17 +509,6 @@ void convLayer_gpu (int chanTile, float * input, TensorShape iShape,
 											inp_data[shared_row*inpW + shared_col + shared_chan*inpW*inpH]   = input[inp_row*iShape.width + inp_col + inp_chan*iShape.width*iShape.height + batch*iShape.channels*iShape.width*iShape.height];
 										}
 									}
-									// if ((inp_chan < iShape.channels) && (inp_row > -1) && (inp_row < iShape.height) && (inp_col > -1) && (inp_col < iShape.width)){
-									// 	inp_data[shared_row*inpW + shared_col + shared_chan*inpW*inpH]   = input[inp_row*iShape.width + inp_col + inp_chan*iShape.width*iShape.height];
-									// 	// inp_data[shared_row*inpW + shared_col + shared_chan*inpW*inpH]   = 1.0;
-									// }	
-									// if (tx == 1 && ty == 7 && bx ==0 && by == 9 && tz == 0 && bz ==0){
-									// 	printf("[0]: %f\n",inp_data[0]);
-									// 	printf("inpChan:%d, inpH: %d, inpW: %d, inpRowOffset: %d, inpColOffset: %d, inpChanOffset: %d\n", inpChan, inpH, inpW, inpRowOffset, inpColOffset, inpChanOffset);
-									// 	printf("inp_data: %f, shared_chan:%d, shared_row: %d, shared_col: %d\n", inp_data[shared_row*inpW + shared_col + shared_chan*inpW*inpH], shared_chan, shared_row, shared_col);
-									// 	printf("input[%d]: %f, inp_chan:%d, inp_row: %d, inp_col: %d\n",inp_row*iShape.width + inp_col + inp_chan*iShape.width*iShape.height, input[inp_row*iShape.width + inp_col + inp_chan*iShape.width*iShape.height],inp_chan, inp_row, inp_col);
-									// 	printf ("Chan[%d] | %d, %d, %d, %d, %d\n",chan, (inp_chan < iShape.channels), (inp_row > -1),(inp_row < iShape.height),(inp_col > -1),(inp_col < iShape.width) );
-									// }
 								}
 							}		
 						}
@@ -548,11 +528,7 @@ void convLayer_gpu (int chanTile, float * input, TensorShape iShape,
 						for (int c = 0; c < fShape.width; ++c){
 							int iIdx = (iRowOffset + r) * inpW + iColOffset + c + iCh * inpW * inpH;
 							int fIdx = r * fShape.width + c + iCh * fShape.width * fShape.height + tz * fShape.width * fShape.height * inpChan;
-							output[outIndex] += inp_data[iIdx] * filter_data[fIdx];
-							// if (tx == 0 && ty == 0 && bx ==0 && by == 0 && tz == 0 && bz ==0){
-							// 	printf("Chan[%d] | inp (%d): %f, filter(%d): %f and output(%d): %f\n", chan, iIdx, inp_data[iIdx], fIdx, filter_data[fIdx], (outRow*oShape.width + outCol) + outChan*oShape.width*oShape.height, output[(outRow*oShape.width + outCol) + outChan*oShape.width*oShape.height]);
-							// }
-							
+							output[outIndex] += inp_data[iIdx] * filter_data[fIdx];							
 						}
 					}
 				}
@@ -605,13 +581,6 @@ void poolLayer_gpu (float * input, TensorShape inShape,
 				}
 			}
 		}
-		if (ty == 0 and tx == 0 and tz ==0 and bx == 0 and by == 0 and bz == 1){
-			printf("iterTotal: %d \n", iterTotal);
-			printf("Number of threads in TB: %d \n", blockDim.x*blockDim.y*blockDim.z);
-			printf("Input size: %d,%d,%d\n", inpWidth,inpHeight,blockDim.z);
-			printf("shared memory first element: %f and channel: %d\n", shared_data[0+inpWidth*inpHeight],inpChan);
-			printf("input first element: %f \n", input[0]);
-		}
 		
 		__syncthreads();
 	
@@ -630,21 +599,12 @@ void poolLayer_gpu (float * input, TensorShape inShape,
 					indX = inpOffsetX + x;
 					indY = inpOffsetY + y;
 					rival = shared_data[inC*inpWidth*inpHeight + indX*inpWidth + indY];
-					if (ty == 0 and tx == 0 and tz ==1 and bx == 0 and by == 0 and bz == 0){
-						printf("outRow,Col,Chan: (%d,%d,%d), indX,indY: (%d,%d) and Data: %f\n",outRow,outCol,outChan,indX,indY,rival);
-					}
 					if (poolPick < rival){
 						poolPick = rival;
 					}
 				}
 			}
 			output[(outRow*outShape.width + outCol) + outShape.width*outShape.height*outChan + outShape.width*outShape.height*outShape.channels*batch] = poolPick;
-			// if (ty == 0 and tx == 1 and tz == 3 and bx == 0 and by == 0 and bz == 1){
-			// 	printf("Output element: %f \n", output[(outRow*outShape.width + outCol) + outShape.width*outShape.height*outChan + outShape.width*outShape.height*outShape.channels*batch]);
-			// 	printf("Output Index: (%d,%d, %d,%d)\n", outRow, outCol, outChan, batch);
-			// 	printf("Input shared mem Index: (%d,%d)\n", inpOffsetX, inpOffsetY);
-			// 	printf("pool picked value: %f\n", poolPick);
-			// }
 	
 		}
 	}
@@ -664,13 +624,6 @@ void gemmLayer_gpu (float * a, TensorShape aShape,
 	int outCol = bx * blockDim.x + tx;
 
 	int subTilesAlongK = ceilf(1.0f*aShape.width/args.tileH);
-
-	#ifndef DEBUG_PRINT_DISABLE
-		if (tx == 0 and ty ==0 and bx ==0 and by == 0){
-			printf("subtilesAlongK: %d and the max value: %d\n", subTilesAlongK, (subTilesAlongK - 1)* args.tileH + args.tileH - 1);
-			printf("A[0], B[0]: %f, %f\n", a[0],b[0]);
-		}
-	#endif
 
 	//Allocate shared memory space
 	extern __shared__ float s[];
@@ -709,16 +662,6 @@ void gemmLayer_gpu (float * a, TensorShape aShape,
 		if (outRow < cShape.height && outCol < cShape.width){
 			for (int i = 0; i < args.tileH; ++i){
 				Pvalue += a_data[ty*args.tileH + i] * b_data[i*args.tileW + tx];
-				#ifndef DEBUG_PRINT_DISABLE
-				if (subTile == 255){	
-					if (bx == 62 && by == 0 && ty == 0 && tx == 0){
-						// printf("%d,%d,%d,%d: b shared index: %d and b index: %d\n",bx,tx,by,ty, bShindex, bIndex);
-						// printf("offsetrow: %d and offsetcol: %d\n",bOffsetRow, bOffsetCol);
-						// printf("%d,%d,%d,%d: b_data: %f, b: %f, index: %d\n",bx,tx,by,ty,b_data[bShindex],b[bIndex], bIndex);
-						printf("%d (subtile),%d,%d,%d,%d: b_data: %f (%d), a_data: %f, Pvalue: %f\n",subTile, bx,tx,by,ty,b_data[i*args.tileW + tx],i*args.tileW + tx,a_data[ty*args.tileH + i],Pvalue );
-					}
-				}
-				#endif
 			}
 		}	
 	}
@@ -726,11 +669,6 @@ void gemmLayer_gpu (float * a, TensorShape aShape,
 	if (outRow < cShape.height && outCol < cShape.width){
 		//assign the total sum to output
 		c[outRow*cShape.width + outCol] = Pvalue;
-		#ifndef DEBUG_PRINT_DISABLE
-			if (bx == 62 and by == 0){
-				printf("%d,%d,%d,%d: pvalue: %f, %d, output: %f\n",bx,tx,by,ty,Pvalue,outRow*cShape.width + outCol, c[outRow*cShape.width + outCol]);
-			}
-		#endif
 	}	
 
 }
