@@ -10,9 +10,9 @@ set(CMAKE_CXX_STANDARD 14)
 
 # Project name and a few useful settings. Other commands can pick up the results
 project(
-  Lab1
+  Lab4
   VERSION 0.1
-  DESCRIPTION "An simple project with CUDA"
+  DESCRIPTION "AlexNet implementation with CUDA"
   LANGUAGES CXX CUDA)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -49,11 +49,9 @@ if( ("${CMAKE_VERSION}" VERSION_EQUAL 3.8) OR
         
         link_directories(${CMAKE_SOURCE_DIR}/src)
         
-        # add_executable(saxpy_cpu "${CMAKE_SOURCE_DIR}/src/saxpy_cpu.cpp")
-        # add_executable(saxpy_gpu "${CMAKE_SOURCE_DIR}/src/saxpy_gpu.cu")
-        add_executable(lab3 "${CMAKE_SOURCE_DIR}/lab3.cu" "${CMAKE_SOURCE_DIR}/lab3.cuh")
-        target_link_libraries(lab3 cudaLib)
-        target_link_libraries(lab3 cpuLib)
+        add_executable(alexnet "${CMAKE_SOURCE_DIR}/alexnet.cu")
+        target_link_libraries(alexnet cudaLib)
+        target_link_libraries(alexnet cpuLib)
 
         # add_executable(lab1_tester "${CMAKE_SOURCE_DIR}/lab1_tester.cu" "${CMAKE_SOURCE_DIR}/lab1_tester.cuh")
         # target_link_libraries(lab1_tester cpuLib)
@@ -62,7 +60,7 @@ if( ("${CMAKE_VERSION}" VERSION_EQUAL 3.8) OR
         
         # add_executable(AlexNet ${cpu_header_files} ${cpu_source_files} ${gpu_header_files} ${gpu_source_files})
     else(USE_CUDA)
-        add_executable(saxpy ${cpu_header_files} ${cpu_source_files})
+        add_executable(lab4 ${cpu_header_files} ${cpu_source_files})
     endif()
 else()
     # Old CMake

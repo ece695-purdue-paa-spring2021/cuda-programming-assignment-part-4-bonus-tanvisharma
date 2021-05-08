@@ -42,6 +42,19 @@ void printVector(float* v, int size) {
 	std::cout << "\n";
 }
 
+void printTensor (float * t, TensorShape shape){
+	unsigned int MAX_PRINT_ELEMS = 2;
+	std::cout << "Printing Tensor : \n";
+	for (int i = 0; i < std::min(shape.channels, MAX_PRINT_ELEMS); ++i){
+		for (int j = 0; j < std::min(shape.height, MAX_PRINT_ELEMS); ++j){
+			for (int k = 0; k < std::min(shape.width, MAX_PRINT_ELEMS); ++k){
+					std::cout << "t[" << j << "(row), " << k << "(col), " << i << "(chan), :" << t[k + j*shape.width + i*shape.width*shape.height] << "\n";
+			}
+		}
+	}
+	std::cout << "\n";
+}
+
 /**
  * @brief CPU code for SAXPY accumulation Y += A * X
  * 
@@ -367,6 +380,14 @@ std::ostream& operator << (std::ostream &o, const TensorShape & t) {
 
 }
 
+extern std::ostream& operator << (std::ostream &o, const PoolLayerArgs & p) {
+	return (
+		o << "PoolArgs : " << p.opType
+		<< p.poolH << " x " << p.poolW << " x "
+		<< p.strideH << " x " << p.strideW << " "
+	);
+}
+
 uint64_t tensorSize (const TensorShape & t) {
 	uint64_t size =  ( (uint64_t)t.count * t.channels * t.height * t.width );
 	if (size == 0) {
@@ -415,6 +436,84 @@ int makeTensor (float ** t, TensorShape & shape) {
 	return 0;
 }
 
+int makeTensorBin (float ** t, TensorShape & shape) {
+	if (*t != nullptr) {
+		std::cout << "Pointer already points to memory ! \n";
+		return -1;
+	}
+
+	if (shape.count == 0) {
+		std::cout << " Shape has invalid count (4th dim) - setting to 1 \n";
+		shape.count = 1;
+	}
+
+	uint64_t tensorSize = shape.height * shape.width * shape.channels * shape.count;
+	*t = (float *) malloc (tensorSize * sizeof(float));
+
+	if (*t == nullptr) {
+		std::cout << "Malloc failed ! \n";
+		return -2;
+	}
+
+	float * m = * t;
+	uint64_t offset;
+
+	std::random_device random_device;
+	std::uniform_real_distribution<float> dist(0.0, 1.0);
+
+	//	Implement NCHW layout
+	for (uint32_t count = 0; count < shape.count; ++ count) {
+		for (uint32_t chIdx = 0; chIdx < shape.channels; ++ chIdx ) {
+			for (uint32_t rowIdx = 0; rowIdx < shape.height; ++ rowIdx) {
+				for (uint32_t colIdx = 0; colIdx < shape.width; ++ colIdx) {
+					offset = count*shape.channels*shape.height*shape.width +chIdx * shape.height * shape.width + rowIdx * shape.width + colIdx;
+					if (dist(random_device) < 0.5)
+						m[offset] = 0.0;
+                    else
+						m[offset] = 1.0;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+int makeTensorOne (float ** t, TensorShape & shape) {
+	if (*t != nullptr) {
+		std::cout << "Pointer already points to memory ! \n";
+		return -1;
+	}
+
+	if (shape.count == 0) {
+		std::cout << " Shape has invalid count (4th dim) - setting to 1 \n";
+		shape.count = 1;
+	}
+
+	uint64_t tensorSize = shape.height * shape.width * shape.channels * shape.count;
+	*t = (float *) malloc (tensorSize * sizeof(float));
+
+	if (*t == nullptr) {
+		std::cout << "Malloc failed ! \n";
+		return -2;
+	}
+
+	float * m = * t;
+	uint64_t offset;
+
+	//	Implement NCHW layout
+	for (uint32_t count = 0; count < shape.count; ++ count) {
+		for (uint32_t chIdx = 0; chIdx < shape.channels; ++ chIdx ) {
+			for (uint32_t rowIdx = 0; rowIdx < shape.height; ++ rowIdx) {
+				for (uint32_t colIdx = 0; colIdx < shape.width; ++ colIdx) {
+					offset = count*shape.channels*shape.height*shape.width +chIdx * shape.height * shape.width + rowIdx * shape.width + colIdx;
+					m[offset] = 1.0;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
 int makeVector (float ** v, uint64_t size) {
 	if (*v != nullptr) {
 		std::cout << "Pointer already points to memory ! \n";
@@ -435,6 +534,14 @@ int makeVector (float ** v, uint64_t size) {
 	return 0;
 }
 
+std::ostream& operator << (std::ostream &o, const ConvLayerArgs & c) {
+	return (
+		o << "Pad : " << c.padH << " x " << c.padW << " , "
+		<< "Stride : " << c.strideH << " x " << c.strideW << " , "
+		<< "Activation: " << c.activation << " "
+	);
+
+}
 
 int runCpuConv (int argc, char ** argv) {
 
